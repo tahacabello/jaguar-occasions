@@ -1,24 +1,23 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag, Heart, Filter } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-
-// Mock data
-const products = [
-  { id: "1", name: "كاب كويتي فاخر", price: 85, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "2", name: "شال تخرج مطرز", price: 45, image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "3", name: "بروش مخصص", price: 25, image: "https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?q=80&w=400&auto=format&fit=crop", status: "محجوز" },
-  { id: "4", name: "روب تخرج أطفال", price: 60, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "5", name: "طقم كاب وشال", price: 120, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "6", name: "قبعة تخرج مخمل", price: 95, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=400&auto=format&fit=crop", status: "غير متوفر" },
-];
+import { getSupabaseProducts, mockProducts } from "@/lib/supabase";
 
 export default function ProductsPage() {
   const { addToCart } = useCart();
+  const [products, setProducts] = useState<any[]>(mockProducts);
+
+  useEffect(() => {
+    getSupabaseProducts().then(dbProducts => {
+      setProducts(dbProducts);
+    }).catch(err => console.error("Error fetching products in products list:", err));
+  }, []);
 
   return (
     <>
@@ -73,13 +72,13 @@ export default function ProductsPage() {
                     <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{product.name}</h3>
                   </Link>
                   <div className="flex items-center justify-between mt-4">
-                    <span className="text-xl font-black text-primary-light">{product.price} <span className="text-sm font-normal">د.ل</span></span>
+                    <span className="text-xl font-black text-primary-light">{product.priceSale} <span className="text-sm font-normal">د.ل</span></span>
                     <button
                       onClick={() =>
                         addToCart({
                           id: product.id,
                           name: product.name,
-                          price: product.price,
+                          price: product.priceSale,
                           image: product.image,
                           mode: "sale",
                         })
