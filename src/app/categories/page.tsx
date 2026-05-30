@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 const categories = [
-  { id: "gowns", name: "كيبان التخرج", image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop", desc: "تشكيلة فاخرة من الكيبان الكويتي والكلاسيكي" },
+  { id: "gowns", name: "كابات التخرج", image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop", desc: "تشكيلة فاخرة من الكابات الكويتية والكلاسيكية" },
   { id: "caps", name: "قبعات التخرج", image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800&auto=format&fit=crop", desc: "قبعات مخمل وستان تناسب جميع الأذواق" },
   { id: "sashes", name: "شالات التخرج", image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=800&auto=format&fit=crop", desc: "شالات مطرزة بدقة عالية ومخصصة بالاسم" },
   { id: "pins", name: "بروشات التخرج", image: "https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?q=80&w=800&auto=format&fit=crop", desc: "بروشات معدنية ومطلية بالذهب بتصاميم مميزة" },
