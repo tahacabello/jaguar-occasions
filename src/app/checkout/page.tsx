@@ -36,7 +36,7 @@ const cityNames: Record<string, string> = {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal, clearCart, isLoaded } = useCart();
 
   // Form State
   const [name, setName] = useState("");
@@ -61,10 +61,18 @@ export default function CheckoutPage() {
 
   // Protect page: redirect to products if cart is empty (unless submitting)
   useEffect(() => {
-    if (cartItems.length === 0 && !isSubmitting) {
+    if (isLoaded && cartItems.length === 0 && !isSubmitting) {
       router.push("/products");
     }
-  }, [cartItems, router, isSubmitting]);
+  }, [isLoaded, cartItems, router, isSubmitting]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (cartItems.length === 0 && !isSubmitting) {
     return null;
