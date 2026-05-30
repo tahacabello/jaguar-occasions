@@ -18,7 +18,7 @@ const tajawal = Tajawal({
 
 export const metadata: Metadata = {
   title: "جاغوار Occasions | مستلزمات التخرج في ليبيا",
-  description: "المتجر الأول في ليبيا لبيع وإيجار كيبان وقبعات وشالات وبروشات التخرج مع التوصيل لجميع أنحاء ليبيا.",
+  description: "المتجر الأول في ليبيا لبيع وإيجار كابات وقبعات وشالات وبروشات التخرج مع التوصيل لجميع أنحاء ليبيا.",
 };
 
 export default function RootLayout({
