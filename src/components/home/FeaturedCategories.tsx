@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const categories = [
-  { id: "gowns", name: "كيبان التخرج", image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=600&auto=format&fit=crop", count: "120+" },
+  { id: "gowns", name: "كابات التخرج", image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=600&auto=format&fit=crop", count: "120+" },
   { id: "caps", name: "قبعات التخرج", image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=600&auto=format&fit=crop", count: "80+" },
   { id: "sashes", name: "شالات التخرج", image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=600&auto=format&fit=crop", count: "200+" },
   { id: "pins", name: "بروشات التخرج", image: "https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?q=80&w=600&auto=format&fit=crop", count: "150+" },
