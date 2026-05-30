@@ -52,7 +52,7 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
           className="text-lg md:text-xl text-foreground/70 mb-10 max-w-2xl font-medium leading-relaxed"
         >
-          اكتشف مجموعتنا الحصرية من كيبان التخرج، القبعات، والشالات الفاخرة. بيع وإيجار مع خدمة توصيل لجميع أنحاء ليبيا.
+          اكتشف مجموعتنا الحصرية من كابات التخرج، القبعات، والشالات الفاخرة. بيع وإيجار مع خدمة توصيل لجميع أنحاء ليبيا.
         </motion.p>
 
         {/* CTAs */}
@@ -66,9 +66,12 @@ export function Hero() {
             تصفح المتجر
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           </Link>
-          <Link href="/about" className="flex justify-center items-center gap-2 w-full sm:w-auto px-8 py-4 rounded-xl font-bold border border-border bg-surface hover:bg-surface-hover hover:border-primary/50 text-foreground transition-all duration-300">
-            اكتشف خدماتنا
-          </Link>
+          <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
+            <Link href="/about" className="flex justify-center items-center gap-2 w-full sm:w-auto px-8 py-4 rounded-xl font-bold border border-border bg-surface hover:bg-surface-hover hover:border-primary/50 text-foreground transition-all duration-300">
+              اكتشف خدماتنا
+            </Link>
+            <span className="text-xs text-primary-light font-bold tracking-widest mt-1">بنا تكتمل فرحتكم</span>
+          </div>
         </motion.div>
 
         {/* Stats Row */}
