@@ -1,21 +1,23 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-
-// Mock data until Supabase is fully connected
-const trendingProducts = [
-  { id: "1", name: "كاب كويتي فاخر", price: 85, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "2", name: "شال تخرج مطرز", price: 45, image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "3", name: "بروش مخصص", price: 25, image: "https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?q=80&w=400&auto=format&fit=crop", status: "محجوز" },
-  { id: "4", name: "روب تخرج أطفال", price: 60, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-];
+import { getSupabaseProducts, mockProducts } from "@/lib/supabase";
 
 export function TrendingProducts() {
   const { addToCart } = useCart();
+  const [products, setProducts] = useState<any[]>(mockProducts.slice(0, 4));
+
+  useEffect(() => {
+    getSupabaseProducts().then(dbProducts => {
+      // Show first 4 products on the homepage carousel
+      setProducts(dbProducts.slice(0, 4));
+    }).catch(err => console.error("Error loading products in TrendingProducts:", err));
+  }, []);
 
   return (
     <section className="py-24 bg-background">
@@ -31,7 +33,7 @@ export function TrendingProducts() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {trendingProducts.map((product, idx) => (
+          {products.map((product, idx) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
