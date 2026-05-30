@@ -80,8 +80,8 @@ export default function AdminDashboard() {
   // Authenticate Admin
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Default premium secure admin password
-    if (accessCode === "JAGUAR2026") {
+    // Customized admin password
+    if (accessCode === "9999") {
       setIsAuthenticated(true);
       sessionStorage.setItem("jaguar_admin_auth", "true");
       setAuthError("");
@@ -196,10 +196,6 @@ export default function AdminDashboard() {
                   <ArrowRight className="w-4 h-4 rotate-180" />
                 </button>
               </form>
-
-              <div className="bg-primary/5 rounded-2xl p-4 border border-primary/20 text-[10px] leading-relaxed text-primary-light/90 text-center">
-                🔒 الرمز السري الافتراضي للمشروع هو: **`JAGUAR2026`**
-              </div>
 
             </div>
           </div>
