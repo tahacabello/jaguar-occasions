@@ -27,7 +27,7 @@ export function Header() {
     <>
       {/* Top Announcement Bar */}
       <div className="bg-primary/10 text-primary-light text-center py-2 text-sm font-medium border-b border-primary/20">
-        شحن مجاني للطلبات فوق 500 د.ل · توصيل لجميع أنحاء ليبيا 🎓
+        توصيل لجميع أنحاء ليبيا 🎓
       </div>
 
       <header
