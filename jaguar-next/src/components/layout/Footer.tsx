@@ -15,7 +15,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-foreground/70 leading-relaxed text-sm">
-              جاغوار للمناسبات - وجهتك الأولى في ليبيا للحصول على أرقى كيبان وقبعات التخرج بأسعار تنافسية وجودة لا تضاهى.
+              جاغوار للمناسبات - وجهتك الأولى في ليبيا للحصول على أرقى كابات وقبعات التخرج بأسعار تنافسية وجودة لا تضاهى.
             </p>
             <div className="flex items-center gap-4">
               <a href="#" className="p-2 bg-surface-hover rounded-full hover:bg-primary hover:text-black transition-colors" aria-label="Facebook">
@@ -64,7 +64,7 @@ export function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-sm text-foreground/70">ليبيا - طرابلس، شارع بن عاشور</span>
+                <span className="text-sm text-foreground/70">ليبيا - طرابلس، شارع النصر</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0" />
