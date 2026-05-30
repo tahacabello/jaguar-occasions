@@ -8,10 +8,10 @@ import Image from "next/image";
 
 // Mock products state for inventory management
 const initialProducts = [
-  { id: "1", name: "كاب كويتي فاخر", priceSale: 85, priceRent: 40, category: "كيبان التخرج", status: "متوفر", sales: 24, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=200&auto=format&fit=crop" },
+  { id: "1", name: "كاب كويتي فاخر", priceSale: 85, priceRent: 40, category: "كابات التخرج", status: "متوفر", sales: 24, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=200&auto=format&fit=crop" },
   { id: "2", name: "شال تخرج مطرز", priceSale: 45, priceRent: 20, category: "شالات التخرج", status: "متوفر", sales: 42, image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=200&auto=format&fit=crop" },
   { id: "3", name: "بروش مخصص", priceSale: 25, priceRent: 12, category: "بروشات التخرج", status: "محجوز", sales: 18, image: "https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?q=80&w=200&auto=format&fit=crop" },
-  { id: "4", name: "روب تخرج أطفال", priceSale: 60, priceRent: 30, category: "كيبان التخرج", status: "متوفر", sales: 15, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=200&auto=format&fit=crop" },
+  { id: "4", name: "روب تخرج أطفال", priceSale: 60, priceRent: 30, category: "كابات التخرج", status: "متوفر", sales: 15, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=200&auto=format&fit=crop" },
 ];
 
 // Mock orders state for order management
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
   const [newProductName, setNewProductName] = useState("");
   const [newProductPriceSale, setNewProductPriceSale] = useState("");
   const [newProductPriceRent, setNewProductPriceRent] = useState("");
-  const [newProductCategory, setNewProductCategory] = useState("كيبان التخرج");
+  const [newProductCategory, setNewProductCategory] = useState("كابات التخرج");
   const [showAddForm, setShowAddForm] = useState(false);
 
   // Authenticate Admin
@@ -509,7 +509,7 @@ export default function AdminDashboard() {
                           onChange={(e) => setNewProductCategory(e.target.value)}
                           className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-surface focus:outline-none focus:border-primary font-bold"
                         >
-                          <option value="كيبان التخرج">كيبان التخرج</option>
+                          <option value="كابات التخرج">كابات التخرج</option>
                           <option value="قبعات التخرج">قبعات التخرج</option>
                           <option value="شالات التخرج">شالات التخرج</option>
                           <option value="بروشات التخرج">بروشات التخرج</option>
