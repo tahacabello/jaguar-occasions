@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import Image from "next/image";
 import { ShoppingCart, Heart, ShieldCheck, Truck, ChevronRight, Plus, Minus, Check } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { getSupabaseProducts } from "@/lib/supabase";
 
 // Mock products database for details fetching
 const productsDb: Record<string, {
@@ -89,12 +90,20 @@ const productsDb: Record<string, {
 };
 
 export default function ProductDetailClient({ params }: { params: { id: string } }) {
-  const product = productsDb[params.id] || productsDb["1"]; // fallback to 1
-  
+  const [product, setProduct] = useState<any>(productsDb[params.id] || productsDb["1"]);
   const [mode, setMode] = useState<"rent" | "sale">("sale");
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
   const { addToCart } = useCart();
+
+  useEffect(() => {
+    getSupabaseProducts().then(dbProducts => {
+      const found = dbProducts.find(p => p.id === params.id);
+      if (found) {
+        setProduct(found);
+      }
+    }).catch(err => console.error("Error fetching product detail in PD:", err));
+  }, [params.id]);
 
   const currentPrice = mode === "sale" ? product.priceSale : product.priceRent;
 
