@@ -80,7 +80,7 @@ export default function RegisterPage() {
             <div className="flex-1 h-px bg-border"></div>
           </div>
 
-          <Link href="/checkout/guest" className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border border-border hover:border-primary/50 bg-surface hover:bg-surface-hover text-foreground/80 transition-all font-bold text-sm group">
+          <Link href="/checkout" className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border border-border hover:border-primary/50 bg-surface hover:bg-surface-hover text-foreground/80 transition-all font-bold text-sm group">
             الاستمرار كضيف (بدون حساب)
             <ArrowRight className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           </Link>
