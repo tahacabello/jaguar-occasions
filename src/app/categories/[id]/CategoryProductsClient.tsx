@@ -1,11 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag, Heart, Filter, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { getSupabaseProducts } from "@/lib/supabase";
 
 // Mock categories map
 const categoriesMap: Record<string, { name: string; desc: string }> = {
@@ -15,19 +17,16 @@ const categoriesMap: Record<string, { name: string; desc: string }> = {
   pins: { name: "بروشات التخرج", desc: "بروشات معدنية ومطلية بالذهب بتصاميم مميزة تعبر عن إنجازك" },
 };
 
-// Mock products (with category links)
-const allProducts = [
-  { id: "1", categoryId: "gowns", name: "كاب كويتي فاخر", price: 85, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "2", categoryId: "sashes", name: "شال تخرج مطرز", price: 45, image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "3", categoryId: "pins", name: "بروش مخصص", price: 25, image: "https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?q=80&w=400&auto=format&fit=crop", status: "محجوز" },
-  { id: "4", categoryId: "gowns", name: "روب تخرج أطفال", price: 60, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "5", categoryId: "gowns", name: "طقم كاب وشال", price: 120, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop", status: "متوفر" },
-  { id: "6", categoryId: "caps", name: "قبعة تخرج مخمل", price: 95, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=400&auto=format&fit=crop", status: "غير متوفر" },
-];
-
 export default function CategoryProductsClient({ params }: { params: { id: string } }) {
   const { addToCart } = useCart();
   const category = categoriesMap[params.id];
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    getSupabaseProducts().then(dbProducts => {
+      setProducts(dbProducts.filter(p => p.categoryId === params.id));
+    }).catch(err => console.error("Error loading category products in CPC:", err));
+  }, [params.id]);
 
   if (!category) {
     return (
@@ -45,7 +44,6 @@ export default function CategoryProductsClient({ params }: { params: { id: strin
     );
   }
 
-  const products = allProducts.filter(p => p.categoryId === params.id);
 
   return (
     <>
@@ -112,13 +110,13 @@ export default function CategoryProductsClient({ params }: { params: { id: strin
                       <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{product.name}</h3>
                     </Link>
                     <div className="flex items-center justify-between mt-4">
-                      <span className="text-xl font-black text-primary-light">{product.price} <span className="text-sm font-normal">د.ل</span></span>
+                      <span className="text-xl font-black text-primary-light">{product.priceSale} <span className="text-sm font-normal">د.ل</span></span>
                       <button
                         onClick={() =>
                           addToCart({
                             id: product.id,
                             name: product.name,
-                            price: product.price,
+                            price: product.priceSale,
                             image: product.image,
                             mode: "sale",
                           })
