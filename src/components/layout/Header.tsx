@@ -6,13 +6,24 @@ import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import { CartDrawer } from "@/components/layout/CartDrawer";
+import { getSupabaseSettings } from "@/lib/supabase";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [announcementText, setAnnouncementText] = useState("توصيل لجميع أنحاء ليبيا 🎓");
 
   const { cartCount } = useCart();
+
+  // Load dynamic settings from Supabase
+  useEffect(() => {
+    getSupabaseSettings().then(settings => {
+      if (settings.announcement_text) {
+        setAnnouncementText(settings.announcement_text);
+      }
+    }).catch(err => console.error("Error fetching announcement in Header:", err));
+  }, []);
 
   // Handle scroll effect for glass header
   useEffect(() => {
@@ -27,7 +38,7 @@ export function Header() {
     <>
       {/* Top Announcement Bar */}
       <div className="bg-primary/10 text-primary-light text-center py-2 text-sm font-medium border-b border-primary/20">
-        توصيل لجميع أنحاء ليبيا 🎓
+        {announcementText}
       </div>
 
       <header
