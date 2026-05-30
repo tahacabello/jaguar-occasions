@@ -1,10 +1,22 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight } from "lucide-react";
+import { getSupabaseSettings } from "@/lib/supabase";
 
 export function Hero() {
+  const [heroTitle, setHeroTitle] = useState("لحظة تخرجك، بأرقى المعايير");
+  const [heroSubtitle, setHeroSubtitle] = useState("اكتشف مجموعتنا الحصرية من كابات التخرج، القبعات، والشالات الفاخرة. بيع وإيجار مع خدمة توصيل لجميع أنحاء ليبيا.");
+
+  useEffect(() => {
+    getSupabaseSettings().then(settings => {
+      if (settings.hero_title) setHeroTitle(settings.hero_title);
+      if (settings.hero_subtitle) setHeroSubtitle(settings.hero_subtitle);
+    }).catch(err => console.error("Error fetching hero settings in Hero:", err));
+  }, []);
+
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-background">
       {/* Dynamic Background Glow */}
@@ -39,10 +51,7 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
           className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 max-w-5xl leading-tight"
         >
-          لحظة تخرجك،{" "}
-          <span className="bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
-            بأرقى المعايير
-          </span>
+          {heroTitle}
         </motion.h1>
 
         {/* Subtitle */}
@@ -52,7 +61,7 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
           className="text-lg md:text-xl text-foreground/70 mb-10 max-w-2xl font-medium leading-relaxed"
         >
-          اكتشف مجموعتنا الحصرية من كابات التخرج، القبعات، والشالات الفاخرة. بيع وإيجار مع خدمة توصيل لجميع أنحاء ليبيا.
+          {heroSubtitle}
         </motion.p>
 
         {/* CTAs */}
