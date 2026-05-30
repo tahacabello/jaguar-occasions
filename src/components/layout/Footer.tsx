@@ -1,7 +1,23 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MapPin, Phone, Mail } from "lucide-react";
+import { getSupabaseSettings } from "@/lib/supabase";
 
 export function Footer() {
+  const [phone, setPhone] = useState("+218 92 123 4567");
+  const [email, setEmail] = useState("info@jaguar.ly");
+  const [location, setLocation] = useState("ليبيا - طرابلس، شارع النصر");
+
+  useEffect(() => {
+    getSupabaseSettings().then(settings => {
+      if (settings.contact_phone) setPhone(settings.contact_phone);
+      if (settings.contact_email) setEmail(settings.contact_email);
+      if (settings.location) setLocation(settings.location);
+    }).catch(err => console.error("Error fetching contact settings in Footer:", err));
+  }, []);
+
   return (
     <footer className="bg-surface pt-20 pb-10 border-t border-border">
       <div className="container mx-auto px-4 lg:px-8">
@@ -64,15 +80,15 @@ export function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-sm text-foreground/70">ليبيا - طرابلس، شارع النصر</span>
+                <span className="text-sm text-foreground/70">{location}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-sm text-foreground/70" dir="ltr">+218 92 123 4567</span>
+                <span className="text-sm text-foreground/70" dir="ltr">{phone}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-sm text-foreground/70">info@jaguar.ly</span>
+                <span className="text-sm text-foreground/70">{email}</span>
               </li>
             </ul>
           </div>
