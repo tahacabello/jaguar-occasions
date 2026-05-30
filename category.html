@@ -9,29 +9,31 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/styles.css?v20260530">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/supabaseClient.js"></script>
-  <script src="assets/js/shared.js"></script>
+  <script src="assets/js/shared.js?v20260530"></script>
 </head>
 <body>
 
 <!-- ── TOP HEADER ── -->
-<header class="site-header">
+<header class="site-header" id="siteHeader">
   <div class="header-inner">
-    <a href="index.html">
-      <img class="header-logo" src="assets/logo/jaguar-logo-white-transparent.png" alt="جاغوار">
+    <a href="index.html" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      الرئيسية
     </a>
-    <div class="search-bar">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <div class="search-bar" style="flex:1;max-width:500px;margin-inline:auto">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input class="input" id="searchInput" type="search" placeholder="ابحث بالاسم أو الكود" style="border:none;background:transparent;border-radius:0;padding:0;min-height:unset;">
     </div>
+    <img class="header-logo" src="assets/logo/jaguar-logo-white-transparent.png" alt="جاغوار" style="flex-shrink:0">
   </div>
 </header>
 
 <!-- ── STICKY FILTERS ── -->
-<div class="filters">
+<div class="filters" id="filtersBar">
   <div class="filters-row">
     <select class="select" id="filterCategory">
       <option value="">كل الأقسام</option>
@@ -47,19 +49,24 @@
       <option value="rent">إيجار</option>
       <option value="sale">بيع</option>
     </select>
-    <button class="btn ghost small" id="resetFilters" type="button">إلغاء</button>
+    <button class="btn ghost small" id="resetFilters" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      إلغاء
+    </button>
   </div>
 </div>
 
 <main style="padding-top:12px;">
-  <div class="section-head" style="padding:0 14px 10px;">
-    <h1 class="section-title" id="categoryTitle" style="font-size:1.1rem;">المنتجات</h1>
+  <div class="section-head" style="padding:0 22px 14px;max-width:1280px;margin:0 auto">
+    <h1 class="section-title" id="categoryTitle" style="font-size:1.15rem">المنتجات</h1>
   </div>
-  <div class="products-grid" id="productsGrid"></div>
+  <div class="catalog-page" style="padding-top:0">
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
 </main>
 
 <!-- ── FLOATING WHATSAPP (desktop) ── -->
-<a id="floatingWhatsapp" class="floating-whatsapp" href="#" target="_blank" rel="noopener">واتساب</a>
+<a id="floatingWhatsapp" class="floating-whatsapp" href="#" target="_blank" rel="noopener">💬 واتساب</a>
 
 <!-- ── FOOTER ── -->
 <footer class="site-footer">
@@ -67,25 +74,26 @@
 </footer>
 
 <!-- ── BOTTOM NAVIGATION ── -->
-<nav class="bottom-nav">
-  <a href="index.html">
+<nav class="bottom-nav" id="bottomNav">
+  <a href="index.html" id="bnHome">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     الرئيسية
   </a>
-  <a href="category.html" class="active">
+  <a href="category.html" class="active" id="bnCat">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-    الفئات
+    المنتجات
   </a>
-  <a href="https://wa.me/218921544663" target="_blank" rel="noopener">
+  <a href="https://wa.me/218921544663" target="_blank" rel="noopener" id="bnWa">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
     واتساب
   </a>
-  <a href="index.html#contact">
+  <a href="index.html#contact" id="bnContact">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>
     تواصل
   </a>
 </nav>
 
-<script src="assets/js/category.js"></script>
+<script src="assets/js/category.js?v20260530"></script>
+<script src="assets/js/animations.js"></script>
 </body>
 </html>
