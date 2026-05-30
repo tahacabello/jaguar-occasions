@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { BarChart3, ShoppingCart, Package, Users, TrendingUp, Search, Eye, Edit3, Trash2, Plus, Check, RefreshCw } from "lucide-react";
+import { BarChart3, ShoppingCart, Package, Users, TrendingUp, Search, Eye, Edit3, Trash2, Plus, Check, RefreshCw, Lock, ArrowRight } from "lucide-react";
 import Image from "next/image";
 
 // Mock products state for inventory management
 const initialProducts = [
-  { id: "1", name: "كاب كويتي فاخر", priceSale: 85, priceRent: 40, category: "كيبان التخرج", status: "متوفر", sales: 24, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=200&auto=format&fit=crop" },
+  { id: "1", name: "كاب كويتي فاخر", priceSale: 85, priceRent: 40, category: "كابات التخرج", status: "متوفر", sales: 24, image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=200&auto=format&fit=crop" },
   { id: "2", name: "شال تخرج مطرز", priceSale: 45, priceRent: 20, category: "شالات التخرج", status: "متوفر", sales: 42, image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=200&auto=format&fit=crop" },
   { id: "3", name: "بروش مخصص", priceSale: 25, priceRent: 12, category: "بروشات التخرج", status: "محجوز", sales: 18, image: "https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?q=80&w=200&auto=format&fit=crop" },
-  { id: "4", name: "روب تخرج أطفال", priceSale: 60, priceRent: 30, category: "كيبان التخرج", status: "متوفر", sales: 15, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=200&auto=format&fit=crop" },
+  { id: "4", name: "روب تخرج أطفال", priceSale: 60, priceRent: 30, category: "كابات التخرج", status: "متوفر", sales: 15, image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=200&auto=format&fit=crop" },
 ];
 
 // Mock orders state for order management
@@ -23,14 +23,25 @@ const initialOrders = [
 ];
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<"analytics" | "orders" | "inventory">("analytics");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [authError, setAuthError] = useState("");
   
-  // Dynamic lists
+  const [activeTab, setActiveTab] = useState<"analytics" | "orders" | "inventory">("analytics");
   const [orders, setOrders] = useState(initialOrders);
   const [products, setProducts] = useState(initialProducts);
 
-  // Load any simulated checkout orders from localStorage
+  // Check auth session on mount
   useEffect(() => {
+    const sessionAuth = sessionStorage.getItem("jaguar_admin_auth");
+    if (sessionAuth === "true") {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  // Load simulated checkout orders from localStorage
+  useEffect(() => {
+    if (!isAuthenticated) return;
     try {
       const keys = Object.keys(localStorage);
       const simulatedOrders = keys
@@ -49,9 +60,7 @@ export default function AdminDashboard() {
         });
 
       if (simulatedOrders.length > 0) {
-        // Prepend simulated orders to default list
         setOrders((prev) => {
-          // filter out duplicates
           const filteredPrev = prev.filter(p => !simulatedOrders.some(s => s.id === p.id));
           return [...simulatedOrders, ...filteredPrev];
         });
@@ -59,14 +68,33 @@ export default function AdminDashboard() {
     } catch (e) {
       console.error("Error loading simulated orders in Admin panel:", e);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // Inventory forms state
   const [newProductName, setNewProductName] = useState("");
   const [newProductPriceSale, setNewProductPriceSale] = useState("");
   const [newProductPriceRent, setNewProductPriceRent] = useState("");
-  const [newProductCategory, setNewProductCategory] = useState("كيبان التخرج");
+  const [newProductCategory, setNewProductCategory] = useState("كابات التخرج");
   const [showAddForm, setShowAddForm] = useState(false);
+
+  // Authenticate Admin
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Customized admin password
+    if (accessCode === "9999") {
+      setIsAuthenticated(true);
+      sessionStorage.setItem("jaguar_admin_auth", "true");
+      setAuthError("");
+    } else {
+      setAuthError("رمز التحقق غير صحيح، يرجى المحاولة مجدداً.");
+    }
+  };
+
+  // Logout admin
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem("jaguar_admin_auth");
+  };
 
   // Handle order status update
   const handleUpdateOrderStatus = (orderId: string, newStatus: string) => {
@@ -77,7 +105,7 @@ export default function AdminDashboard() {
     );
   };
 
-  // Handle adding new product to list
+  // Handle adding new product
   const handleAddProduct = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProductName || !newProductPriceSale || !newProductPriceRent) return;
@@ -104,11 +132,8 @@ export default function AdminDashboard() {
   const handleToggleProductStatus = (productId: string) => {
     setProducts((prev) =>
       prev.map((p) => {
-        if (p.id === productId) {
-          const nextStatus = p.status === "متوفر" ? "محجوز" : p.status === "محجوز" ? "غير متوفر" : "متوفر";
-          return { ...p, status: nextStatus };
-        }
-        return p;
+        const nextStatus = p.status === "متوفر" ? "محجوز" : p.status === "محجوز" ? "غير متوفر" : "متوفر";
+        return p.id === productId ? { ...p, status: nextStatus } : p;
       })
     );
   };
@@ -125,10 +150,66 @@ export default function AdminDashboard() {
 
   const pendingCount = orders.filter(o => o.status === "pending").length;
 
+  // Render Login Lock Screen if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-background flex items-center justify-center pt-12 pb-24 text-right">
+          <div className="container mx-auto px-4 max-w-md">
+            <div className="glass p-8 rounded-3xl border border-border shadow-2xl space-y-6">
+              
+              <div className="text-center space-y-2">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 text-primary-light rounded-full border border-primary/20 mb-2">
+                  <Lock className="w-8 h-8" />
+                </div>
+                <h1 className="text-2xl font-black bg-gradient-to-r from-primary-light to-primary-dark bg-clip-text text-transparent">
+                  الدخول الآمن للإدارة
+                </h1>
+                <p className="text-foreground/50 text-xs">
+                  هذه الصفحة محمية. يرجى إدخال رمز التحقق الخاص بمتجر جاغوار.
+                </p>
+              </div>
+
+              <form onSubmit={handleAuthSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-foreground/75">رمز التحقق للإدارة *</label>
+                  <input
+                    type="password"
+                    required
+                    value={accessCode}
+                    onChange={(e) => setAccessCode(e.target.value)}
+                    placeholder="أدخل الرمز السري للأدمن"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-surface hover:border-primary-light/35 focus:border-primary focus:outline-none transition-colors font-bold text-center tracking-widest"
+                  />
+                </div>
+
+                {authError && (
+                  <p className="text-xs text-red-400 font-bold text-center mt-2">{authError}</p>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full btn-premium py-3.5 font-black text-sm flex items-center justify-center gap-2 mt-4"
+                >
+                  تأكيد الدخول
+                  <ArrowRight className="w-4 h-4 rotate-180" />
+                </button>
+              </form>
+
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  // Render Dashboard if authenticated
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-background pt-12 pb-24 text-right">
+      <main className="min-h-screen bg-background pt-12 pb-24 text-right animate-fadeIn">
         <div className="container mx-auto px-4 lg:px-8">
           
           {/* Dashboard Header */}
@@ -141,7 +222,7 @@ export default function AdminDashboard() {
             </div>
             
             {/* Quick action buttons */}
-            <div className="flex gap-4">
+            <div className="flex gap-4 items-center">
               <button onClick={() => window.location.reload()} className="p-3 bg-surface hover:bg-surface-hover rounded-xl border border-border hover:border-primary/50 text-foreground transition-all duration-300">
                 <RefreshCw className="w-5 h-5" />
               </button>
@@ -154,6 +235,12 @@ export default function AdminDashboard() {
               >
                 <Plus className="w-4 h-4" />
                 إضافة منتج جديد
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-3 rounded-xl border border-red-500/25 bg-red-500/5 hover:bg-red-500/10 text-red-400 text-xs font-bold transition-all duration-300"
+              >
+                تسجيل الخروج الآمن
               </button>
             </div>
           </div>
@@ -253,7 +340,7 @@ export default function AdminDashboard() {
 
                 </div>
 
-                {/* Additional Charts Mock or Activity logs */}
+                {/* Additional Charts Mock */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {/* Left: Top selling products */}
                   <div className="glass p-6 rounded-3xl border border-border lg:col-span-2 space-y-4">
@@ -422,7 +509,7 @@ export default function AdminDashboard() {
                           onChange={(e) => setNewProductCategory(e.target.value)}
                           className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-surface focus:outline-none focus:border-primary font-bold"
                         >
-                          <option value="كيبان التخرج">كيبان التخرج</option>
+                          <option value="كابات التخرج">كابات التخرج</option>
                           <option value="قبعات التخرج">قبعات التخرج</option>
                           <option value="شالات التخرج">شالات التخرج</option>
                           <option value="بروشات التخرج">بروشات التخرج</option>
@@ -485,9 +572,9 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleToggleProductStatus(p.id)}
                             className={`px-3 py-1 rounded-full text-xs font-bold transition-all border ${
-                              p.status === "متوفر" ? "bg-green-500/10 text-green-400 border-green-500/20" :
-                              p.status === "محجوز" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                              "bg-red-500/10 text-red-400 border-red-500/20"
+                              p.status === "متوفر" ? "bg-green-500/10 text-green-400" :
+                              p.status === "محجوز" ? "bg-amber-500/10 text-amber-400" :
+                              "bg-red-500/10 text-red-400"
                             }`}
                           >
                             {p.status}
