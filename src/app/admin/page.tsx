@@ -5,6 +5,14 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BarChart3, ShoppingCart, Package, Users, TrendingUp, Search, Eye, Edit3, Trash2, Plus, Check, RefreshCw, Lock, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { 
+  getSupabaseProducts, 
+  addSupabaseProduct, 
+  updateSupabaseProduct, 
+  deleteSupabaseProduct, 
+  getSupabaseSettings, 
+  updateSupabaseSetting 
+} from "@/lib/supabase";
 
 // Mock products state for inventory management
 const initialProducts = [
@@ -27,9 +35,22 @@ export default function AdminDashboard() {
   const [accessCode, setAccessCode] = useState("");
   const [authError, setAuthError] = useState("");
   
-  const [activeTab, setActiveTab] = useState<"analytics" | "orders" | "inventory">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "orders" | "inventory" | "settings">("analytics");
   const [orders, setOrders] = useState(initialOrders);
   const [products, setProducts] = useState(initialProducts);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Settings state
+  const [settings, setSettings] = useState<Record<string, string>>({
+    contact_phone: "+218 92 123 4567",
+    contact_email: "info@jaguar.ly",
+    location: "ليبيا - طرابلس، شارع النصر",
+    announcement_text: "توصيل لجميع أنحاء ليبيا 🎓",
+    hero_title: "لحظة تخرجك، بأرقى المعايير",
+    hero_subtitle: "اكتشف مجموعتنا الحصرية من كابات التخرج، القبعات، والشالات الفاخرة. بيع وإيجار مع خدمة توصيل لجميع أنحاء ليبيا."
+  });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Check auth session on mount
   useEffect(() => {
@@ -38,6 +59,24 @@ export default function AdminDashboard() {
       setIsAuthenticated(true);
     }
   }, []);
+
+  // Fetch Supabase products and settings
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    setIsLoading(true);
+    
+    Promise.all([
+      getSupabaseProducts(),
+      getSupabaseSettings()
+    ]).then(([dbProducts, dbSettings]) => {
+      setProducts(dbProducts);
+      setSettings(dbSettings);
+      setIsLoading(false);
+    }).catch(err => {
+      console.error("Error fetching data from Supabase in admin dashboard:", err);
+      setIsLoading(false);
+    });
+  }, [isAuthenticated]);
 
   // Load simulated checkout orders from localStorage
   useEffect(() => {
@@ -106,41 +145,76 @@ export default function AdminDashboard() {
   };
 
   // Handle adding new product
-  const handleAddProduct = (e: React.FormEvent) => {
+  const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProductName || !newProductPriceSale || !newProductPriceRent) return;
 
+    const nextId = (products.length + 1).toString();
     const newProd = {
-      id: (products.length + 1).toString(),
+      id: nextId,
       name: newProductName,
       priceSale: parseFloat(newProductPriceSale),
       priceRent: parseFloat(newProductPriceRent),
       category: newProductCategory,
+      categoryId: newProductCategory === "كابات التخرج" ? "gowns" : 
+                  newProductCategory === "قبعات التخرج" ? "caps" : 
+                  newProductCategory === "شالات التخرج" ? "sashes" : "pins",
       status: "متوفر",
       sales: 0,
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=200&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop",
+      code: `JG-00${nextId}`
     };
 
-    setProducts([newProd, ...products]);
-    setNewProductName("");
-    setNewProductPriceSale("");
-    setNewProductPriceRent("");
-    setShowAddForm(false);
+    const success = await addSupabaseProduct(newProd);
+    if (success) {
+      setProducts([newProd, ...products]);
+      setNewProductName("");
+      setNewProductPriceSale("");
+      setNewProductPriceRent("");
+      setShowAddForm(false);
+    }
   };
 
   // Toggle product availability status
-  const handleToggleProductStatus = (productId: string) => {
-    setProducts((prev) =>
-      prev.map((p) => {
-        const nextStatus = p.status === "متوفر" ? "محجوز" : p.status === "محجوز" ? "غير متوفر" : "متوفر";
-        return p.id === productId ? { ...p, status: nextStatus } : p;
-      })
-    );
+  const handleToggleProductStatus = async (productId: string) => {
+    const p = products.find(prod => prod.id === productId);
+    if (!p) return;
+    
+    const nextStatus = p.status === "متوفر" ? "محجوز" : p.status === "محجوز" ? "غير متوفر" : "متوفر";
+    const success = await updateSupabaseProduct(productId, { status: nextStatus });
+    if (success) {
+      setProducts((prev) =>
+        prev.map((prod) => prod.id === productId ? { ...prod, status: nextStatus } : prod)
+      );
+    }
   };
 
   // Delete product
-  const handleDeleteProduct = (id: string) => {
-    setProducts(products.filter((p) => p.id !== id));
+  const handleDeleteProduct = async (id: string) => {
+    const success = await deleteSupabaseProduct(id);
+    if (success) {
+      setProducts(products.filter((p) => p.id !== id));
+    }
+  };
+
+  // Save Site settings to Supabase
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    setSaveSuccess(false);
+
+    try {
+      const promises = Object.entries(settings).map(([key, val]) => 
+        updateSupabaseSetting(key, val)
+      );
+      await Promise.all(promises);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      console.error("Error saving settings to Supabase:", err);
+    } finally {
+      setIsSavingSettings(false);
+    }
   };
 
   // Summary Metrics calculations
@@ -246,7 +320,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex border border-border bg-surface p-1.5 rounded-2xl max-w-lg mb-10 overflow-x-auto gap-2">
+          <div className="flex border border-border bg-surface p-1.5 rounded-2xl max-w-2xl mb-10 overflow-x-auto gap-2">
             <button
               onClick={() => setActiveTab("analytics")}
               className={`flex-1 py-3 px-6 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap ${
@@ -286,6 +360,18 @@ export default function AdminDashboard() {
             >
               <Package className="w-4 h-4" />
               إدارة المنتجات
+            </button>
+
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`flex-1 py-3 px-6 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap ${
+                activeTab === "settings"
+                  ? "bg-primary text-black"
+                  : "text-foreground/60 hover:text-foreground hover:bg-surface-hover"
+              }`}
+            >
+              <Edit3 className="w-4 h-4" />
+              تعديل محتوى الموقع
             </button>
           </div>
 
@@ -593,6 +679,150 @@ export default function AdminDashboard() {
                     ))}
                   </div>
 
+                </div>
+
+              </div>
+            )}
+
+            {/* SETTINGS TAB */}
+            {activeTab === "settings" && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fadeIn text-right">
+                
+                {/* Left: Editor Form */}
+                <form onSubmit={handleSaveSettings} className="glass p-8 rounded-3xl border border-border space-y-6">
+                  <div className="flex justify-between items-center border-b border-border pb-4 mb-4">
+                    <h3 className="text-xl font-bold">تعديل نصوص وأرقام الموقع</h3>
+                    <button
+                      type="submit"
+                      disabled={isSavingSettings}
+                      className="px-6 py-2.5 bg-primary text-black rounded-xl font-bold text-sm hover:bg-primary-light transition-all flex items-center gap-2"
+                    >
+                      {isSavingSettings ? "جاري الحفظ..." : "حفظ التغييرات"}
+                    </button>
+                  </div>
+
+                  {saveSuccess && (
+                    <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl text-sm font-bold flex items-center gap-2">
+                      <Check className="w-4 h-4" />
+                      تم حفظ التغييرات وتحديثها لدى جميع المستخدمين بنجاح!
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-primary-light border-r-2 border-primary pr-2">الشريط الإعلاني والواجهة</h4>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-xs font-bold text-foreground/60">نص الإعلان العلوي</label>
+                      <input
+                        type="text"
+                        value={settings.announcement_text || ""}
+                        onChange={(e) => setSettings({ ...settings, announcement_text: e.target.value })}
+                        className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-surface focus:outline-none focus:border-primary font-semibold"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-xs font-bold text-foreground/60">عنوان الواجهة الرئيسية (Hero Title)</label>
+                      <input
+                        type="text"
+                        value={settings.hero_title || ""}
+                        onChange={(e) => setSettings({ ...settings, hero_title: e.target.value })}
+                        className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-surface focus:outline-none focus:border-primary font-semibold"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-xs font-bold text-foreground/60">الوصف المساعد في الواجهة</label>
+                      <textarea
+                        rows={3}
+                        value={settings.hero_subtitle || ""}
+                        onChange={(e) => setSettings({ ...settings, hero_subtitle: e.target.value })}
+                        className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-surface focus:outline-none focus:border-primary font-semibold leading-relaxed"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t border-border">
+                    <h4 className="text-sm font-bold text-primary-light border-r-2 border-primary pr-2">معلومات التواصل والتذييل</h4>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold text-foreground/60">رقم الهاتف للتواصل</label>
+                        <input
+                          type="text"
+                          value={settings.contact_phone || ""}
+                          onChange={(e) => setSettings({ ...settings, contact_phone: e.target.value })}
+                          className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-surface focus:outline-none focus:border-primary font-semibold"
+                          dir="ltr"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="block text-xs font-bold text-foreground/60">البريد الإلكتروني</label>
+                        <input
+                          type="email"
+                          value={settings.contact_email || ""}
+                          onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
+                          className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-surface focus:outline-none focus:border-primary font-semibold"
+                          dir="ltr"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-xs font-bold text-foreground/60">عنوان وموقع المحل (شارع النصر)</label>
+                      <input
+                        type="text"
+                        value={settings.location || ""}
+                        onChange={(e) => setSettings({ ...settings, location: e.target.value })}
+                        className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-surface focus:outline-none focus:border-primary font-semibold"
+                      />
+                    </div>
+                  </div>
+                </form>
+
+                {/* Right: Live Visual Preview */}
+                <div className="glass p-8 rounded-3xl border border-border space-y-6 flex flex-col">
+                  <h3 className="text-xl font-bold border-b border-border pb-4">👁️ معاينة حية للموقع (المظهر عند المستخدمين)</h3>
+                  
+                  <div className="flex-1 flex flex-col justify-between border border-border rounded-2xl bg-background overflow-hidden min-h-[380px] shadow-2xl relative text-right">
+                    
+                    {/* Preview Announcement Bar */}
+                    <div className="bg-primary/10 text-primary-light text-center py-1 text-[10px] font-bold border-b border-primary/20">
+                      {settings.announcement_text}
+                    </div>
+
+                    {/* Preview Header Logo */}
+                    <div className="p-3 border-b border-border bg-surface/50 flex justify-between items-center">
+                      <span className="text-xs font-bold text-foreground/50">JAGUAR Occasions</span>
+                      <div className="flex gap-2">
+                        <div className="w-5 h-5 rounded-full bg-border"></div>
+                        <div className="w-5 h-5 rounded-full bg-border"></div>
+                      </div>
+                    </div>
+
+                    {/* Preview Hero Content */}
+                    <div className="p-6 text-center space-y-3 my-auto">
+                      <h1 className="text-xl font-black text-white leading-tight">{settings.hero_title}</h1>
+                      <p className="text-xs text-foreground/60 leading-relaxed max-w-sm mx-auto">{settings.hero_subtitle}</p>
+                      <div className="inline-block px-4 py-1.5 bg-primary text-black rounded-lg text-[10px] font-bold shadow-md shadow-primary/20">
+                        تصفح المتجر
+                      </div>
+                    </div>
+
+                    {/* Preview Footer content */}
+                    <div className="p-4 bg-surface border-t border-border text-[10px] text-foreground/50 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-white">تواصل معنا:</span>
+                        <span>{settings.location}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>هاتف: {settings.contact_phone}</span>
+                        <span>بريد: {settings.contact_email}</span>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
 
               </div>
